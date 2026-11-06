@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calcolatore stipendio netto 2026 – da lordo a netto</title>
+<meta name="description" content="Calcola lo stipendio netto mensile da RAL: IRPEF 2026, contributi INPS, detrazioni e addizionali.">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#5b6570;--ac:#0f766e;--bd:#dde1e6;--ok:#e6f4f1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1a1f25;--tx:#eceff2;--mu:#9aa5b1;--ac:#2dd4bf;--bd:#2c333b;--ok:#12312d}}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;line-height:1.25;margin:0 0 4px}
+p.sub{color:var(--mu);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+label:first-child{margin-top:0}
+input,select{width:100%;font:inherit;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.big{background:var(--ok);border-radius:12px;padding:14px;text-align:center}
+.big span{display:block;color:var(--mu);font-size:.85rem}
+.big strong{font-size:2rem;color:var(--ac)}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.95rem}
+td{padding:8px 0;border-bottom:1px solid var(--bd)}
+td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.note{color:var(--mu);font-size:.8rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Stipendio netto 2026</h1>
+<p class="sub">Dal lordo annuo (RAL) al netto in busta paga, per lavoratori dipendenti.</p>
+
+<div class="card">
+<label for="ral">RAL – retribuzione annua lorda (€)</label>
+<input id="ral" type="number" inputmode="decimal" value="30000" min="0">
+<label for="mens">Mensilità</label>
+<select id="mens"><option value="12">12</option><option value="13" selected>13</option><option value="14">14</option></select>
+<div class="row">
+<div><label for="reg">Addiz. regionale %</label><input id="reg" type="number" inputmode="decimal" step="0.01" value="1.73"></div>
+<div><label for="com">Addiz. comunale %</label><input id="com" type="number" inputmode="decimal" step="0.01" value="0.80"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="big"><span>Netto mensile stimato</span><strong id="nm">–</strong></div>
+<table>
+<tr><td>Netto annuo</td><td id="na">–</td></tr>
+<tr><td>Contributi INPS (9,19%)</td><td id="inps">–</td></tr>
+<tr><td>IRPEF lorda</td><td id="lorda">–</td></tr>
+<tr><td>Detrazioni lavoro dipendente</td><td id="detr">–</td></tr>
+<tr><td>IRPEF netta</td><td id="irpef">–</td></tr>
+<tr><td>Addizionali regionale e comunale</td><td id="add">–</td></tr>
+</table>
+</div>
+
+<p class="note">Stima indicativa con aliquote IRPEF 2026 (23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre). Non considera familiari a carico, trattamento integrativo, altre detrazioni, previdenza complementare né il contratto collettivo applicato. Per cifre ufficiali fai riferimento al tuo cedolino o a un consulente.</p>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var eur=new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"});
+function f(n){return eur.format(n)}
+function calc(){
+var ral=Math.max(0,parseFloat($("ral").value)||0);
+var m=parseInt($("mens").value,10);
+var reg=(parseFloat($("reg").value)||0)/100;
+var com=(parseFloat($("com").value)||0)/100;
+var inps=ral*0.0919;
+var imp=ral-inps;
+var lorda=0;
+if(imp<=28000){lorda=imp*0.23}
+else if(imp<=50000){lorda=28000*0.23+(imp-28000)*0.33}
+else{lorda=28000*0.23+22000*0.33+(imp-50000)*0.43}
+var d=0;
+if(imp<=15000){d=1955}
+else if(imp<=28000){d=1910+1190*(28000-imp)/13000}
+else if(imp<=50000){d=1910*(50000-imp)/22000}
+if(imp<=0)d=0;
+var irpef=Math.max(0,lorda-d);
+var add=imp*(reg+com);
+var netto=ral-inps-irpef-add;
+$("nm").textContent=f(netto/m);
+$("na").textContent=f(netto);
+$("inps").textContent=f(inps);
+$("lorda").textContent=f(lorda);
+$("detr").textContent=f(Math.min(d,lorda));
+$("irpef").textContent=f(irpef);
+$("add").textContent=f(add);
+}
+["ral","mens","reg","com"].forEach(function(i){$(i).addEventListener("input",calc)});
+calc();
+})();
+</script>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calcolatore stipendio netto 2026 – da lordo a netto</title>
+<meta name="description" content="Calcola lo stipendio netto mensile da RAL: IRPEF 2026, contributi INPS, detrazioni e addizionali.">
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#5b6570;--ac:#0f766e;--bd:#dde1e6;--ok:#e6f4f1;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111418;--card:#1a1f25;--tx:#eceff2;--mu:#9aa5b1;--ac:#2dd4bf;--bd:#2c333b;--ok:#12312d}}
+*{box-sizing:border-box}
+html{color-scheme:light dark}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:520px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;line-height:1.25;margin:0 0 4px}
+p.sub{color:var(--mu);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+label{display:block;font-weight:600;font-size:.9rem;margin:12px 0 4px}
+label:first-child{margin-top:0}
+input,select{width:100%;font:inherit;padding:12px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx)}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.big{background:var(--ok);border-radius:12px;padding:14px;text-align:center}
+.big span{display:block;color:var(--mu);font-size:.85rem}
+.big strong{font-size:2rem;color:var(--ac)}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:.95rem}
+td{padding:8px 0;border-bottom:1px solid var(--bd)}
+td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.note{color:var(--mu);font-size:.8rem}
+</style>
+</head>
+<body>
+<main>
+<h1>Stipendio netto 2026</h1>
+<p class="sub">Dal lordo annuo (RAL) al netto in busta paga, per lavoratori dipendenti.</p>
+
+<div class="card">
+<label for="ral">RAL – retribuzione annua lorda (€)</label>
+<input id="ral" type="number" inputmode="decimal" value="30000" min="0">
+<label for="mens">Mensilità</label>
+<select id="mens"><option value="12">12</option><option value="13" selected>13</option><option value="14">14</option></select>
+<div class="row">
+<div><label for="reg">Addiz. regionale %</label><input id="reg" type="number" inputmode="decimal" step="0.01" value="1.73"></div>
+<div><label for="com">Addiz. comunale %</label><input id="com" type="number" inputmode="decimal" step="0.01" value="0.80"></div>
+</div>
+</div>
+
+<div class="card">
+<div class="big"><span>Netto mensile stimato</span><strong id="nm">–</strong></div>
+<table>
+<tr><td>Netto annuo</td><td id="na">–</td></tr>
+<tr><td>Contributi INPS (9,19%)</td><td id="inps">–</td></tr>
+<tr><td>IRPEF lorda</td><td id="lorda">–</td></tr>
+<tr><td>Detrazioni lavoro dipendente</td><td id="detr">–</td></tr>
+<tr><td>IRPEF netta</td><td id="irpef">–</td></tr>
+<tr><td>Addizionali regionale e comunale</td><td id="add">–</td></tr>
+</table>
+</div>
+
+<p class="note">Stima indicativa con aliquote IRPEF 2026 (23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre). Non considera familiari a carico, trattamento integrativo, altre detrazioni, previdenza complementare né il contratto collettivo applicato. Per cifre ufficiali fai riferimento al tuo cedolino o a un consulente.</p>
+</main>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var eur=new Intl.NumberFormat("it-IT",{style:"currency",currency:"EUR"});
+function f(n){return eur.format(n)}
+function calc(){
+var ral=Math.max(0,parseFloat($("ral").value)||0);
+var m=parseInt($("mens").value,10);
+var reg=(parseFloat($("reg").value)||0)/100;
+var com=(parseFloat($("com").value)||0)/100;
+var inps=ral*0.0919;
+var imp=ral-inps;
+var lorda=0;
+if(imp<=28000){lorda=imp*0.23}
+else if(imp<=50000){lorda=28000*0.23+(imp-28000)*0.33}
+else{lorda=28000*0.23+22000*0.33+(imp-50000)*0.43}
+var d=0;
+if(imp<=15000){d=1955}
+else if(imp<=28000){d=1910+1190*(28000-imp)/13000}
+else if(imp<=50000){d=1910*(50000-imp)/22000}
+if(imp<=0)d=0;
+var irpef=Math.max(0,lorda-d);
+var add=imp*(reg+com);
+var netto=ral-inps-irpef-add;
+$("nm").textContent=f(netto/m);
+$("na").textContent=f(netto);
+$("inps").textContent=f(inps);
+$("lorda").textContent=f(lorda);
+$("detr").textContent=f(Math.min(d,lorda));
+$("irpef").textContent=f(irpef);
+$("add").textContent=f(add);
+}
+["ral","mens","reg","com"].forEach(function(i){$(i).addEventListener("input",calc)});
+calc();
+})();
+</script>
+</body>
+</html>
